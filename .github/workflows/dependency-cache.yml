@@ -22,8 +22,7 @@ jobs:
         with:
           path: ~/.npm
           key: cache-a2fe9dd
-          restore-keys: |
-            cache-a2fe9dd
+          restore-keys: cache-a2fe9dd
 
       # Step 3: Echo cache hit/miss
       - name: Cache result
