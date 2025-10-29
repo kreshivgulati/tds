@@ -1,33 +1,37 @@
-name: Cache Dependencies
+name: Dependency Cache CI
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Cache dependencies
-      - name: Prime cache-a2fe9dd
-        id: prime-cache
-        uses: actions/cache@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          path: ~/.npm
-          key: cache-a2fe9dd
-          restore-keys: cache-a2fe9dd
+          python-version: "3.11"
 
-      # Step 3: Echo cache hit/miss
-      - name: Cache result
-        run: echo "Cache hit: ${{ steps.prime-cache.outputs.cache-hit }}"
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-      # Step 4: Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          echo "✅ All dependencies installed and workflow ran successfully!"
